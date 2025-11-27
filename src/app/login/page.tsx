@@ -1,17 +1,47 @@
-// src/app/login/page.tsx
 'use client'
 
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default function LoginPage () {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  function handleSubmit (e: FormEvent) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/dashboard'
+
+  async function handleSubmit (e: FormEvent) {
     e.preventDefault()
-    // Después acá llamamos a la API real
-    console.log('Login con:', { email, password })
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        setError(data.error || 'Credenciales incorrectas')
+        setLoading(false)
+        return
+      }
+
+      router.push(redirectTo)
+    } catch (err) {
+      setError('Error al conectar con el servidor')
+      setLoading(false)
+    }
   }
 
   return (
@@ -30,6 +60,7 @@ export default function LoginPage () {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder='tu@email.com'
+              required
             />
           </div>
 
@@ -41,14 +72,18 @@ export default function LoginPage () {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder='••••••••'
+              required
             />
           </div>
 
+          {error && <p className='text-red-400 text-xs text-center'>{error}</p>}
+
           <button
             type='submit'
-            className='w-full rounded-lg bg-emerald-500 text-slate-950 font-semibold py-2 mt-2 hover:bg-emerald-400 transition'
+            className='w-full rounded-lg bg-emerald-500 text-slate-950 font-semibold py-2 mt-2 hover:bg-emerald-400 transition disabled:opacity-50'
+            disabled={loading}
           >
-            Entrar
+            {loading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 

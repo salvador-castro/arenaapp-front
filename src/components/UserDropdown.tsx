@@ -138,7 +138,6 @@ export default function UserDropdown () {
             onClick={() => {
               closeDropdown()
               // acá después metemos lógica real de logout
-              console.log('Cerrar sesión')
             }}
             className='w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-950/40'
           >

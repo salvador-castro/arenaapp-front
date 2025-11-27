@@ -1,8 +1,10 @@
-// src/app/register/page.tsx
 'use client'
 
 import Link from 'next/link'
 import { FormEvent, useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 export default function RegisterPage () {
   const [nombre, setNombre] = useState('')
@@ -11,10 +13,42 @@ export default function RegisterPage () {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  function handleSubmit (e: FormEvent) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const router = useRouter()
+
+  async function handleSubmit (e: FormEvent) {
     e.preventDefault()
-    // Después acá llamamos a la API real
-    console.log('Registro:', { nombre, email, apellido, numero, password })
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          apellido,
+          email,
+          telefono: numero || null,
+          password
+        })
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        setError(data.error || 'No se pudo registrar')
+        setLoading(false)
+        return
+      }
+
+      router.push('/login')
+    } catch (err) {
+      setError('Error al conectar con el servidor')
+      setLoading(false)
+    }
   }
 
   return (
@@ -33,6 +67,7 @@ export default function RegisterPage () {
               value={nombre}
               onChange={e => setNombre(e.target.value)}
               placeholder='Tu nombre'
+              required
             />
           </div>
 
@@ -44,6 +79,7 @@ export default function RegisterPage () {
               value={apellido}
               onChange={e => setApellido(e.target.value)}
               placeholder='Tu apellido'
+              required
             />
           </div>
 
@@ -66,6 +102,7 @@ export default function RegisterPage () {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder='tu@email.com'
+              required
             />
           </div>
 
@@ -77,14 +114,18 @@ export default function RegisterPage () {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder='••••••••'
+              required
             />
           </div>
 
+          {error && <p className='text-red-400 text-xs text-center'>{error}</p>}
+
           <button
             type='submit'
-            className='w-full rounded-lg bg-emerald-500 text-slate-950 font-semibold py-2 mt-2 hover:bg-emerald-400 transition'
+            className='w-full rounded-lg bg-emerald-500 text-slate-950 font-semibold py-2 mt-2 hover:bg-emerald-400 transition disabled:opacity-50'
+            disabled={loading}
           >
-            Registrarme
+            {loading ? 'Registrando...' : 'Registrarme'}
           </button>
         </form>
 

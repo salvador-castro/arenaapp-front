@@ -1,8 +1,12 @@
-// src/components/HeroCarousel.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useAuthRedirect } from 'src/hooks/useAuthRedirect'
+
+type HeroCarouselProps = {
+  isLoggedIn: boolean
+}
 
 const slides = [
   {
@@ -11,7 +15,8 @@ const slides = [
     description: 'Restaurantes, bares, cafés y planes cerca tuyo.',
     image:
       'https://images.pexels.com/photos/3184192/pexels-photo-3184192.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    cta: 'Explorar lugares'
+    cta: 'Explorar lugares',
+    target: '/lugares' // ruta a donde queremos ir
   },
   {
     id: 2,
@@ -19,7 +24,8 @@ const slides = [
     description: 'Armá tu lista de spots para volver cuando quieras.',
     image:
       'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    cta: 'Ver favoritos'
+    cta: 'Ver favoritos',
+    target: '/favoritos'
   },
   {
     id: 3,
@@ -27,13 +33,15 @@ const slides = [
     description: 'Enterate qué está pasando este finde en la ciudad.',
     image:
       'https://images.pexels.com/photos/154147/pexels-photo-154147.jpeg?auto=compress&cs=tinysrgb&w=1600',
-    cta: 'Ver agenda'
+    cta: 'Ver agenda',
+    target: '/agenda'
   }
 ]
 
-export default function HeroCarousel () {
+export default function HeroCarousel ({ isLoggedIn }: HeroCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const total = slides.length
+  const { goTo } = useAuthRedirect(isLoggedIn)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -43,7 +51,7 @@ export default function HeroCarousel () {
     return () => clearInterval(timer)
   }, [total])
 
-  const goTo = (index: number) => {
+  const goToSlide = (index: number) => {
     setActiveIndex((index + total) % total)
   }
 
@@ -60,7 +68,7 @@ export default function HeroCarousel () {
           priority
           className='object-cover'
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10' />
+        <div className='absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-black/10' />
       </div>
 
       {/* Contenido */}
@@ -70,8 +78,8 @@ export default function HeroCarousel () {
           {slides.map((slide, idx) => (
             <button
               key={slide.id}
-              onClick={() => goTo(idx)}
-              className={`h-1.5 rounded-full transition-all ${
+              onClick={() => goToSlide(idx)}
+              className={`h-1.5 rounded-full transition-all cursor-pointer ${
                 idx === activeIndex ? 'w-6 bg-white' : 'w-2 bg-white/50'
               }`}
               aria-label={`Ir al slide ${idx + 1}`}
@@ -91,20 +99,24 @@ export default function HeroCarousel () {
 
         {/* CTA y flechas */}
         <div className='flex items-center justify-between mt-6'>
-          <button className='px-4 py-2.5 rounded-full bg-white text-slate-900 text-sm font-semibold shadow-md hover:bg-slate-100 active:scale-[0.98] transition'>
+          <button
+            className='px-4 py-2.5 rounded-full bg-white text-slate-900 text-sm font-semibold shadow-md hover:bg-slate-100 active:scale-[0.98] transition cursor-pointer'
+            onClick={() => goTo(current.target)}
+          >
             {current.cta}
           </button>
 
           <div className='flex gap-2'>
             <button
-              onClick={() => goTo(activeIndex - 1)}
-              className='w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white text-lg'
+              onClick={() => goToSlide(activeIndex - 1)}
+              className='w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white text-lg cursor-pointer'
             >
               ‹
             </button>
+
             <button
-              onClick={() => goTo(activeIndex + 1)}
-              className='w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white text-lg'
+              onClick={() => goToSlide(activeIndex + 1)}
+              className='w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white text-lg cursor-pointer'
             >
               ›
             </button>

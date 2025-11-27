@@ -9,45 +9,33 @@ import NearbySection from 'src/components/NearbySection'
 import WeekendEventsSection from 'src/components/WeekendEventsSection'
 
 export default function HomePage () {
-  // TODO: reemplazar esto por el estado real de autenticación
-  const isLoggedIn = false // o true para probar la otra variante
+  // Más adelante esto va a salir de un contexto / cookie de auth
+  const isLoggedIn = false
 
   return (
     <main className='min-h-screen flex flex-col bg-slate-950 text-slate-50'>
-      {/* Contenido principal (dejamos espacio abajo para banner + nav fijo) */}
       <div className='flex-1 pb-32'>
-        <HeroCarousel />
+        <HeroCarousel isLoggedIn={isLoggedIn} />
 
-        {/* Categorías rápidas */}
-        <section className='px-4 pt-4'>
-          <CategoryChips />
-        </section>
-
-        {/* Recomendados para vos */}
         <section className='px-4 pt-6'>
-          <RecommendedSection />
+          <RecommendedSection isLoggedIn={isLoggedIn} />
         </section>
 
-        {/* Banner interno (promoción de feature de la app) */}
         <section className='px-4 pt-6'>
           <PromoBanner />
         </section>
 
-        {/* Lugares cerca tuyo (mock por ahora) */}
         <section className='px-4 pt-6'>
-          <NearbySection />
+          <NearbySection isLoggedIn={isLoggedIn} />
         </section>
 
-        {/* Eventos del finde */}
         <section className='px-4 pt-6 pb-4'>
-          <WeekendEventsSection />
+          <WeekendEventsSection isLoggedIn={isLoggedIn} />
         </section>
 
-        {/* Banner de publicidad externo, abajo del todo */}
         <AdBanner />
       </div>
 
-      {/* Menú inferior fijo */}
       <BottomNav isLoggedIn={isLoggedIn} />
     </main>
   )

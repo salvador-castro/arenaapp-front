@@ -1,60 +1,38 @@
 // src/components/NearbySection.tsx
-import { MapPin } from 'lucide-react'
+'use client'
 
-const nearby = [
-  {
-    id: 1,
-    name: 'Bar de la Esquina',
-    category: 'Bar · Tragos',
-    distance: '300 m',
-    image: 'https://via.placeholder.com/120x120.png?text=Bar'
-  },
-  {
-    id: 2,
-    name: 'Pizzería La Piedra',
-    category: 'Pizzería',
-    distance: '650 m',
-    image: 'https://via.placeholder.com/120x120.png?text=Pizza'
-  },
-  {
-    id: 3,
-    name: 'Café UTN',
-    category: 'Café · Estudio',
-    distance: '1,1 km',
-    image: 'https://via.placeholder.com/120x120.png?text=Cafe'
-  }
-]
+import { useAuthRedirect } from 'src/hooks/useAuthRedirect'
 
-export default function NearbySection () {
+type Props = {
+  isLoggedIn: boolean
+}
+
+export default function NearbySection ({ isLoggedIn }: Props) {
+  const { goTo } = useAuthRedirect(isLoggedIn)
+
+  const places: any[] = [] // datos del admin más adelante
+
   return (
-    <div>
-      <h2 className='text-base font-semibold mb-2'>Lugares cerca tuyo</h2>
-      <div className='space-y-3'>
-        {nearby.map(place => (
-          <article
-            key={place.id}
-            className='flex items-center gap-3 rounded-xl bg-slate-900/80 px-2.5 py-2 shadow-sm'
-          >
-            <div className='h-14 w-14 overflow-hidden rounded-xl'>
-              <img
-                src={place.image}
-                alt={place.name}
-                className='h-full w-full object-cover'
-              />
-            </div>
-            <div className='flex-1 min-w-0'>
-              <h3 className='truncate text-sm font-semibold'>{place.name}</h3>
-              <p className='truncate text-[11px] text-slate-300'>
-                {place.category}
-              </p>
-              <div className='mt-1 flex items-center gap-1 text-[11px] text-slate-400'>
-                <MapPin size={12} />
-                <span>{place.distance}</span>
-              </div>
-            </div>
-          </article>
-        ))}
+    <section className='space-y-3'>
+      <div className='flex items-center justify-between'>
+        <h2 className='text-lg font-semibold'>Lugares cerca tuyo</h2>
+
+        <button
+          type='button'
+          className='text-xs font-medium text-emerald-400 underline underline-offset-4 cursor-pointer hover:text-emerald-300'
+          onClick={() => goTo('/lugares')}
+        >
+          Explorar lugares
+        </button>
       </div>
-    </div>
+
+      {places.length === 0 ? (
+        <p className='text-xs text-slate-400'>
+          Cuando el admin cargue lugares, los vas a ver listados acá.
+        </p>
+      ) : (
+        <div className='grid grid-cols-1 gap-3'>{/* cards de lugares */}</div>
+      )}
+    </section>
   )
 }

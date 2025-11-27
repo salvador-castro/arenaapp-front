@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useEffect, useState } from 'react'
-import { getCurrentUser, type User } from '@/lib/user'
+import { getCurrentUser, type User } from 'lib/user'
 
 export default function ProfilePage () {
   const [user, setUser] = useState<User | null>(null)
@@ -26,13 +26,6 @@ export default function ProfilePage () {
 
   function handleSubmit (e: FormEvent) {
     e.preventDefault()
-    console.log('Guardar perfil (mock):', {
-      nombre,
-      email,
-      username,
-      ciudad,
-      pais
-    })
     setMessage('Perfil actualizado (mock, sin backend todavía)')
     setTimeout(() => setMessage(null), 3000)
   }
