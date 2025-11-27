@@ -1,12 +1,18 @@
+// C:\Users\salvaCastro\Desktop\arenaapp-front\src\components\UserDropdown.tsx
 'use client'
 
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
+import { useAuth } from '@/context/AuthContext'
+import { useRouter } from 'next/navigation'
 
 export default function UserDropdown () {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
+
+  const { user, logout } = useAuth()
+  const router = useRouter()
 
   function toggleDropdown (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation()
@@ -37,6 +43,12 @@ export default function UserDropdown () {
     }
   }, [isOpen])
 
+  const nombreCompleto = user
+    ? `${user.nombre} ${user.apellido}`
+    : 'Usuario invitado'
+
+  const email = user?.email ?? 'sin-email@example.com'
+
   return (
     <div ref={containerRef} className='relative'>
       {/* Botón */}
@@ -54,7 +66,7 @@ export default function UserDropdown () {
         </span>
 
         <span className='hidden sm:block mr-1 text-sm font-medium text-slate-100'>
-          Salvador
+          {user ? user.nombre : 'Invitado'}
         </span>
 
         <svg
@@ -90,11 +102,9 @@ export default function UserDropdown () {
             </span>
             <div>
               <span className='block text-sm font-medium text-slate-100'>
-                Salvador Castro
+                {nombreCompleto}
               </span>
-              <span className='block text-xs text-slate-400'>
-                salva@example.com
-              </span>
+              <span className='block text-xs text-slate-400'>{email}</span>
             </div>
           </div>
 
@@ -137,7 +147,8 @@ export default function UserDropdown () {
           <button
             onClick={() => {
               closeDropdown()
-              // acá después metemos lógica real de logout
+              logout()
+              router.push('/login')
             }}
             className='w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-950/40'
           >

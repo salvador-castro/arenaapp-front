@@ -1,13 +1,11 @@
-// src/components/BottomNav.tsx
+// C:\Users\salvaCastro\Desktop\arenaapp-front\src\components\BottomNav.tsx
 'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Search, User, Heart, Menu as MenuIcon } from 'lucide-react'
-
-type BottomNavProps = {
-  isLoggedIn: boolean
-}
+import { useAuth } from '@/context/AuthContext'
+import React from 'react'
 
 type Item = {
   href: string
@@ -15,8 +13,11 @@ type Item = {
   icon: React.ReactNode
 }
 
-export default function BottomNav ({ isLoggedIn }: BottomNavProps) {
+export default function BottomNav () {
   const pathname = usePathname()
+  const { user } = useAuth()
+
+  const isLoggedIn = !!user
 
   const guestItems: Item[] = [
     { href: '/', label: 'Inicio', icon: <Home size={20} /> },

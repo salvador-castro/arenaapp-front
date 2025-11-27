@@ -1,51 +1,75 @@
+// C:\Users\salvaCastro\Desktop\arenaapp-front\src\app\login\page.tsx
 'use client'
 
-import Link from 'next/link'
 import { FormEvent, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+import Link from 'next/link'
+import { useAuth } from '@/context/AuthContext'
 
 export default function LoginPage () {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/dashboard'
+  const { login } = useAuth()
 
-  async function handleSubmit (e: FormEvent) {
+  const redirect = searchParams.get('redirect') || '/dashboard'
+
+  async function handleSubmit (e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
+    setIsSubmitting(true)
     setError(null)
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password }),
+          credentials: 'include' // importante para que se guarde la cookie httpOnly
+        }
+      )
 
-      const data = await res.json().catch(() => ({}))
+      const data = await res.json()
+      console.log('Respuesta login FRONT:', res.status, data)
 
       if (!res.ok) {
-        setError(data.error || 'Credenciales incorrectas')
-        setLoading(false)
+        setError(data.error || data.message || 'Error al iniciar sesión')
         return
       }
 
-      router.push(redirectTo)
+      // el backend devuelve: { message, user: { id, nombre, email, role } }
+      const user = {
+        id: data.user.id,
+        nombre: data.user.nombre,
+        apellido: '', // por ahora vacío, el back no lo envía
+        email: data.user.email,
+        role: data.user.role
+      }
+
+      console.log('Login OK FRONT, user armado:', user)
+
+      // Guardar en contexto + localStorage
+      login(user)
+
+      // Ir al dashboard (o a redirect)
+      router.push(redirect)
     } catch (err) {
-      setError('Error al conectar con el servidor')
-      setLoading(false)
+      console.error('Error en fetch login:', err)
+      setError('Error de conexión')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   return (
-    <main className='min-h-screen flex items-center justify-center px-4'>
+    <main className='min-h-screen flex items-center justify-center px-4 bg-slate-950 text-slate-50'>
       <div className='w-full max-w-md bg-slate-900/60 border border-slate-700 rounded-2xl p-6 shadow-lg'>
         <h1 className='text-2xl font-semibold mb-4 text-center'>
           Iniciar sesión
@@ -81,9 +105,9 @@ export default function LoginPage () {
           <button
             type='submit'
             className='w-full rounded-lg bg-emerald-500 text-slate-950 font-semibold py-2 mt-2 hover:bg-emerald-400 transition disabled:opacity-50'
-            disabled={loading}
+            disabled={isSubmitting}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {isSubmitting ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
