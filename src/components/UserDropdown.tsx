@@ -7,6 +7,10 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useRouter } from 'next/navigation'
 
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+).replace(/\/$/, '')
+
 export default function UserDropdown () {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -49,6 +53,17 @@ export default function UserDropdown () {
 
   const email = user?.email ?? 'sin-email@example.com'
 
+  const initials = user
+    ? `${user.nombre?.[0] ?? ''}${user.apellido?.[0] ?? ''}`.toUpperCase()
+    : 'U'
+
+  // Normalizamos avatar_url por si viene relativa desde el back
+  const avatarSrc = user?.avatar_url
+    ? user.avatar_url.startsWith('http')
+      ? user.avatar_url
+      : `${API_BASE}${user.avatar_url}`
+    : null
+
   return (
     <div ref={containerRef} className='relative'>
       {/* Botón */}
@@ -56,13 +71,19 @@ export default function UserDropdown () {
         onClick={toggleDropdown}
         className='flex items-center gap-2 rounded-full bg-slate-900/70 px-2 py-1 border border-slate-700 hover:bg-slate-800'
       >
-        <span className='overflow-hidden rounded-full h-9 w-9'>
-          <Image
-            width={36}
-            height={36}
-            src='/images/user/owner.jpg'
-            alt='User'
-          />
+        <span className='overflow-hidden rounded-full h-9 w-9 flex items-center justify-center bg-slate-800 text-slate-200 text-sm font-semibold'>
+          {avatarSrc ? (
+            <Image
+              width={36}
+              height={36}
+              src={avatarSrc}
+              alt={nombreCompleto}
+              className='h-9 w-9 object-cover rounded-full'
+              unoptimized
+            />
+          ) : (
+            initials
+          )}
         </span>
 
         <span className='hidden sm:block mr-1 text-sm font-medium text-slate-100'>
@@ -92,13 +113,19 @@ export default function UserDropdown () {
         <div className='absolute right-0 mt-3 w-64 rounded-2xl border border-slate-800 bg-slate-950 p-3 shadow-xl z-50'>
           {/* Info user */}
           <div className='flex items-center gap-3 mb-3'>
-            <span className='overflow-hidden rounded-full h-10 w-10'>
-              <Image
-                width={40}
-                height={40}
-                src='/images/user/owner.jpg'
-                alt='User'
-              />
+            <span className='overflow-hidden rounded-full h-10 w-10 flex items-center justify-center bg-slate-800 text-slate-200 text-sm font-semibold'>
+              {avatarSrc ? (
+                <Image
+                  width={40}
+                  height={40}
+                  src={avatarSrc}
+                  alt={nombreCompleto}
+                  className='h-10 w-10 object-cover rounded-full'
+                  unoptimized
+                />
+              ) : (
+                initials
+              )}
             </span>
             <div>
               <span className='block text-sm font-medium text-slate-100'>
@@ -114,7 +141,7 @@ export default function UserDropdown () {
           <ul className='flex flex-col gap-1 text-sm'>
             <li>
               <Link
-                href='/profile'
+                href='/perfil'
                 onClick={closeDropdown}
                 className='flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-900 text-slate-200'
               >

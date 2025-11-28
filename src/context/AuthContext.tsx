@@ -8,14 +8,7 @@ import {
   useState,
   ReactNode
 } from 'react'
-
-type User = {
-  id: number
-  nombre: string
-  apellido: string
-  email: string
-  role?: string
-}
+import type { User } from '@/lib/user' // 👈 usamos el mismo tipo que en lib/user
 
 type AuthContextType = {
   user: User | null
@@ -36,7 +29,7 @@ export function AuthProvider ({ children }: { children: ReactNode }) {
       if (typeof window !== 'undefined') {
         const storedUser = localStorage.getItem('arenaapp_user')
         if (storedUser) {
-          const parsed = JSON.parse(storedUser)
+          const parsed: User = JSON.parse(storedUser)
           console.log('AuthProvider: usuario desde localStorage', parsed)
           setUser(parsed)
         } else {

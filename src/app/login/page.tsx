@@ -44,11 +44,11 @@ export default function LoginPage () {
         return
       }
 
-      // el backend devuelve: { message, user: { id, nombre, email, role } }
+      // el backend devuelve los datos del usuario
       const user = {
         id: data.user.id,
         nombre: data.user.nombre,
-        apellido: '', // por ahora vacío, el back no lo envía
+        apellido: data.user.apellido,
         email: data.user.email,
         role: data.user.role
       }

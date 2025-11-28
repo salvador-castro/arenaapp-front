@@ -47,7 +47,7 @@ export default function DashboardPage () {
       <section className='flex-1 px-4 py-4 space-y-4'>
         <div className='rounded-2xl border border-slate-800 bg-slate-900/60 p-4'>
           <h2 className='text-base font-semibold mb-1'>
-            Qué bueno verte de nuevo, {user.nombre}
+            Qué bueno verte de nuevo, {user.nombre} {user.apellido}
           </h2>
           <p className='text-sm text-slate-300'>
             Desde acá vas a poder ver tus lugares favoritos, reservas, eventos y
